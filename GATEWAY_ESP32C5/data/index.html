@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Singfast Electric Car</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+
+<body>
+
+    <div class="container">
+
+        <!-- ========================================
+             HEADER
+        ========================================= -->
+
+        <header>
+
+            <h1>SINGFAST ELECTRIC CAR</h1>
+
+            <p>Ape of Ukraine Control System</p>
+
+        </header>
+
+
+        <!-- ========================================
+             DASHBOARD
+        ========================================= -->
+
+        <main class="dashboard">
+
+
+            <!-- ====================================
+                 SYSTEM STATUS
+            ===================================== -->
+
+            <section class="panel status-panel">
+
+                <div class="panel-title">
+                    SYSTEM STATUS
+                </div>
+
+
+                <!-- CONNECTION STATUS -->
+
+                <div class="status-item">
+
+                    <span class="status-label">
+                        CONNECTION STATUS
+                    </span>
+
+                    <div class="connection-status">
+
+                        <span
+                            class="status-dot connecting"
+                            id="status-dot">
+                        </span>
+
+                        <strong
+                            id="connection-status">
+                            CONNECTING
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- INTERNAL LATENCY -->
+
+                <div class="status-item latency-item">
+
+                    <span class="status-label">
+                        INTERNAL LATENCY
+                    </span>
+
+                    <strong
+                        id="internal-latency"
+                        class="latency-value">
+                        ∞ ms
+                    </strong>
+
+                </div>
+
+
+                <!-- ROBOT STATE -->
+
+                <div class="status-item">
+
+                    <span class="status-label">
+                        ROBOT STATE
+                    </span>
+
+                    <strong
+                        id="robot-state">
+                        IDLE
+                    </strong>
+
+                </div>
+
+
+                <!-- MESSAGE -->
+
+                <div class="status-message">
+
+                    <span class="status-label">
+                        MESSAGE
+                    </span>
+
+                    <strong
+                        id="system-message">
+                        Connecting...
+                    </strong>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- ====================================
+                 TELEMETRY
+            ===================================== -->
+
+            <section class="panel telemetry-panel">
+
+                <div class="panel-title">
+                    TELEMETRY
+                </div>
+
+
+                <div class="telemetry-grid">
+
+
+                    <!-- BALANCE ANGLE -->
+
+                    <div class="telemetry-card">
+
+                        <span>
+                            BALANCE ANGLE
+                        </span>
+
+                        <strong id="telemetry-angle">
+                            0.00°
+                        </strong>
+
+                    </div>
+
+
+                    <!-- TURN ANGLE -->
+
+                    <div class="telemetry-card">
+
+                        <span>
+                            TURN ANGLE
+                        </span>
+
+                        <strong id="telemetry-yaw">
+                            0.00°
+                        </strong>
+
+                    </div>
+
+
+                    <!-- LEFT SPEED -->
+
+                    <div class="telemetry-card">
+
+                        <span>
+                            LEFT SPEED
+                        </span>
+
+                        <strong id="telemetry-left-speed">
+                            0 RPM
+                        </strong>
+
+                    </div>
+
+
+                    <!-- RIGHT SPEED -->
+
+                    <div class="telemetry-card">
+
+                        <span>
+                            RIGHT SPEED
+                        </span>
+
+                        <strong id="telemetry-right-speed">
+                            0 RPM
+                        </strong>
+
+                    </div>
+
+
+                    <!-- BATTERY -->
+
+                    <div class="telemetry-card battery-card">
+
+                        <span>
+                            BATTERY
+                        </span>
+
+                        <strong id="battery-value">
+                            0 %
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- ====================================
+                 ROBOT CONTROL
+            ===================================== -->
+
+            <section class="panel control-panel">
+
+                <div class="panel-title">
+                    ROBOT CONTROL
+                </div>
+
+
+                <!-- TURN ANGLE -->
+
+                <div class="section-label">
+                    TURN ANGLE
+                </div>
+
+
+                <div class="angle-buttons">
+
+                    <button
+                        class="angle-button active"
+                        data-angle="30">
+
+                        30°
+
+                    </button>
+
+
+                    <button
+                        class="angle-button"
+                        data-angle="45">
+
+                        45°
+
+                    </button>
+
+
+                    <button
+                        class="angle-button"
+                        data-angle="60">
+
+                        60°
+
+                    </button>
+
+                </div>
+
+
+                <!-- SELECTED ANGLE -->
+
+                <div class="selected-angle">
+
+                    Selected:
+                    <strong id="selected-angle">
+                        30°
+                    </strong>
+
+                </div>
+
+
+                <!-- CONTROL PAD -->
+
+                <div class="control-pad">
+
+
+                    <!-- FORWARD -->
+
+                    <button
+                        class="control-button forward"
+                        id="btn-forward"
+                        data-key="w">
+
+                        <span class="arrow">
+                            ▲
+                        </span>
+
+                        <span>
+                            FORWARD
+                        </span>
+
+                        <small>
+                            W
+                        </small>
+
+                    </button>
+
+
+                    <!-- MIDDLE -->
+
+                    <div class="middle-buttons">
+
+
+                        <!-- LEFT -->
+
+                        <button
+                            class="control-button"
+                            id="btn-left"
+                            data-key="a">
+
+                            <span class="arrow">
+                                ◀
+                            </span>
+
+                            <span>
+                                LEFT
+                            </span>
+
+                            <small>
+                                A
+                            </small>
+
+                        </button>
+
+
+                        <!-- STOP -->
+
+                        <button
+                            class="control-button stop"
+                            id="btn-stop">
+
+                            <span class="arrow">
+                                ■
+                            </span>
+
+                            <span>
+                                STOP
+                            </span>
+
+                            <small>
+                                SPACE
+                            </small>
+
+                        </button>
+
+
+                        <!-- RIGHT -->
+
+                        <button
+                            class="control-button"
+                            id="btn-right"
+                            data-key="d">
+
+                            <span class="arrow">
+                                ▶
+                            </span>
+
+                            <span>
+                                RIGHT
+                            </span>
+
+                            <small>
+                                D
+                            </small>
+
+                        </button>
+
+                    </div>
+
+
+                    <!-- BACKWARD -->
+
+                    <button
+                        class="control-button backward"
+                        id="btn-backward"
+                        data-key="s">
+
+                        <span class="arrow">
+                            ▼
+                        </span>
+
+                        <span>
+                            BACKWARD
+                        </span>
+
+                        <small>
+                            S
+                        </small>
+
+                    </button>
+
+                </div>
+
+
+                <!-- VERSION -->
+
+                <div class="control-footer">
+
+                    SINGFAST ELECTRIC CAR — v1.0.0
+
+                </div>
+
+            </section>
+
+
+
+            <!-- ====================================
+                 PID CONFIGURATION
+            ===================================== -->
+
+            <section class="panel pid-panel">
+
+                <div class="panel-title">
+                    PID CONFIGURATION
+                </div>
+
+
+                <!-- PROFILE -->
+
+                <div class="profile-row">
+
+                    <div>
+
+                        <span class="status-label">
+                            PROFILE
+                        </span>
+
+                        <select id="profile-select">
+
+                            <option value="Default">
+                                Default
+                            </option>
+
+                            <option value="Racing">
+                                Racing
+                            </option>
+
+                            <option value="Stable">
+                                Stable
+                            </option>
+
+                            <option value="Test">
+                                Test
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div
+                        class="active-profile"
+                        id="active-profile-name">
+
+                        Default ● ACTIVE
+
+                    </div>
+
+                </div>
+
+
+                <!-- BALANCE PID -->
+
+                <div class="pid-section">
+
+                    <div class="pid-title">
+                        BALANCE PID
+                    </div>
+
+                    <div class="pid-inputs">
+
+                        <label>
+                            KP
+                            <input
+                                type="number"
+                                step="0.001"
+                                id="balance-kp">
+                        </label>
+
+                        <label>
+                            KI
+                            <input
+                                type="number"
+                                step="0.001"
+                                id="balance-ki">
+                        </label>
+
+                        <label>
+                            KD
+                            <input
+                                type="number"
+                                step="0.001"
+                                id="balance-kd">
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <!-- SPEED PID -->
+
+                <div class="pid-section">
+
+                    <div class="pid-title">
+                        SPEED PID
+                    </div>
+
+                    <div class="pid-inputs">
+
+                        <label>
+                            KP
+                            <input
+                                type="number"
+                                step="0.001"
+                                id="speed-kp">
+                        </label>
+
+                        <label>
+                            KI
+                            <input
+                                type="number"
+                                step="0.001"
+                                id="speed-ki">
+                        </label>
+
+                        <label>
+                            KD
+                            <input
+                                type="number"
+                                step="0.001"
+                                id="speed-kd">
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <!-- YAW PID -->
+
+                <div class="pid-section">
+
+                    <div class="pid-title">
+                        YAW PID
+                    </div>
+
+                    <div class="pid-inputs">
+
+                        <label>
+                            KP
+                            <input
+                                type="number"
+                                step="0.001"
+                                id="yaw-kp">
+                        </label>
+
+                        <label>
+                            KI
+                            <input
+                                type="number"
+                                step="0.001"
+                                id="yaw-ki">
+                        </label>
+
+                        <label>
+                            KD
+                            <input
+                                type="number"
+                                step="0.001"
+                                id="yaw-kd">
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <!-- PID BUTTONS -->
+
+                <div class="pid-buttons">
+
+                    <button id="apply-pid">
+                        APPLY NOW
+                    </button>
+
+                    <button id="save-profile">
+                        SAVE PROFILE
+                    </button>
+
+                    <button id="activate-profile">
+                        ACTIVATE
+                    </button>
+
+                    <button id="new-profile">
+                        NEW
+                    </button>
+
+                    <button
+                        id="delete-profile"
+                        class="delete-button">
+
+                        DELETE
+
+                    </button>
+
+                </div>
+
+
+                <!-- PID MESSAGE -->
+
+                <div
+                    class="pid-message"
+                    id="pid-message">
+
+                    Ready
+
+                </div>
+
+            </section>
+
+        </main>
+
+
+        <!-- ========================================
+             FOOTER
+        ========================================= -->
+
+        <footer>
+
+            From nguyentrader with love ♥♥♥
+
+        </footer>
+
+    </div>
+
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,1119 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+/* ============================================
+   BODY
+============================================ */
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+
+    font-family: Arial, sans-serif;
+
+    background:
+        radial-gradient(
+            circle at 20% 20%,
+            rgba(91, 58, 180, 0.22),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at 80% 80%,
+            rgba(30, 100, 190, 0.18),
+            transparent 35%
+        ),
+        url("background.gif")
+        center center /
+        cover
+        fixed
+        no-repeat
+        #060817;
+
+    color: #dceaff;
+
+    overflow: hidden;
+}
+
+
+/* ============================================
+   CONTAINER
+============================================ */
+
+.container {
+
+    width: min(1180px, 96vw);
+    height: 100vh;
+
+    margin: auto;
+
+    padding: 14px 0 8px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* ============================================
+   HEADER
+============================================ */
+
+header {
+
+    text-align: center;
+
+    margin-bottom: 12px;
+
+    flex-shrink: 0;
+}
+
+header h1 {
+
+    font-size: clamp(20px, 2.2vw, 30px);
+
+    letter-spacing: 4px;
+
+    color: #d9c7ff;
+
+    text-shadow:
+        0 0 18px rgba(142, 104, 255, 0.35);
+}
+
+header p {
+
+    margin-top: 4px;
+
+    font-size: 10px;
+
+    letter-spacing: 2px;
+
+    color: #7897bf;
+}
+
+
+/* ============================================
+   DASHBOARD
+============================================ */
+
+.dashboard {
+
+    flex: 1;
+
+    min-height: 0;
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    /* Top 43% / Bottom 57% */
+    grid-template-rows:
+        minmax(0, 0.43fr)
+        minmax(0, 0.57fr);
+
+    gap: 10px;
+}
+
+
+/* ============================================
+   PANEL
+============================================ */
+
+.panel {
+
+    min-height: 0;
+
+    padding: 14px;
+
+    border-radius: 13px;
+
+    border: 1px solid rgba(151, 126, 255, 0.18);
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(45, 38, 90, 0.48),
+            rgba(12, 28, 65, 0.36)
+        );
+
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+
+    box-shadow:
+        0 8px 30px rgba(0, 0, 0, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.025);
+
+    overflow: hidden;
+}
+
+
+/* ============================================
+   PANEL TITLE
+============================================ */
+
+.panel-title {
+
+    font-size: 13px;
+
+    letter-spacing: 2px;
+
+    font-weight: bold;
+
+    color: #c7b4ff;
+
+    padding-bottom: 8px;
+
+    margin-bottom: 9px;
+
+    border-bottom:
+        1px solid rgba(150, 125, 255, 0.12);
+}
+
+
+/* ============================================
+   SYSTEM STATUS
+============================================ */
+
+.status-panel {
+
+    display: flex;
+    flex-direction: column;
+}
+
+
+.status-item {
+
+    padding: 7px 9px;
+
+    margin-bottom: 6px;
+
+    border-radius: 8px;
+
+    background:
+        rgba(90, 80, 150, 0.08);
+
+    border:
+        1px solid rgba(140, 125, 220, 0.08);
+}
+
+
+.status-label {
+
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: #718cb5;
+
+    font-size: 8px;
+
+    letter-spacing: 1.5px;
+
+    text-transform: uppercase;
+}
+
+
+.connection-status {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+}
+
+
+.connection-status strong {
+
+    font-size: 13px;
+
+    letter-spacing: 0.7px;
+}
+
+
+/* ============================================
+   STATUS DOT
+============================================ */
+
+.status-dot {
+
+    width: 8px;
+    height: 8px;
+
+    border-radius: 50%;
+
+    display: inline-block;
+
+    flex-shrink: 0;
+}
+
+
+.status-dot.connected {
+
+    background: #67edc1;
+
+    box-shadow:
+        0 0 9px rgba(103, 237, 193, 0.7);
+}
+
+
+.status-dot.connecting {
+
+    background: #ffd76a;
+
+    box-shadow:
+        0 0 9px rgba(255, 215, 106, 0.65);
+}
+
+
+.status-dot.disconnected {
+
+    background: #ff7899;
+
+    box-shadow:
+        0 0 9px rgba(255, 120, 153, 0.65);
+}
+
+
+/* ============================================
+   CONNECTION COLORS
+============================================ */
+
+.connection-status.connected strong {
+
+    color: #67edc1;
+}
+
+
+.connection-status.connecting strong {
+
+    color: #ffd76a;
+}
+
+
+.connection-status.disconnected strong {
+
+    color: #ff7899;
+}
+
+
+/* ============================================
+   INTERNAL LATENCY
+============================================ */
+
+.latency-value {
+
+    font-size: 18px;
+
+    color: #c7dcff;
+}
+
+
+.latency-value.good {
+
+    color: #67edc1;
+}
+
+
+.latency-value.warning {
+
+    color: #ffd76a;
+}
+
+
+.latency-value.bad {
+
+    color: #ff7899;
+}
+
+
+.latency-value.offline {
+
+    color: #ff7899;
+}
+
+
+/* ============================================
+   ROBOT STATE
+============================================ */
+
+#robot-state {
+
+    font-size: 14px;
+
+    color: #c8a9ff;
+}
+
+
+/* ============================================
+   MESSAGE
+============================================ */
+
+.status-message {
+
+    flex: 1;
+
+    min-height: 42px;
+
+    padding: 8px 9px;
+
+    border-radius: 8px;
+
+    background:
+        rgba(80, 70, 140, 0.07);
+
+    border:
+        1px solid rgba(140, 125, 220, 0.08);
+}
+
+
+.status-message strong {
+
+    display: block;
+
+    font-size: 11px;
+
+    color: #b8c8df;
+
+    line-height: 1.4;
+}
+
+
+.status-message.error strong {
+
+    color: #ff7899;
+}
+
+
+.status-message.warning strong {
+
+    color: #ffd76a;
+}
+
+
+.status-message.success strong {
+
+    color: #67edc1;
+}
+
+
+/* ============================================
+   TELEMETRY
+============================================ */
+
+.telemetry-panel {
+
+    display: flex;
+    flex-direction: column;
+}
+
+
+.telemetry-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 7px;
+
+    flex: 1;
+
+    align-content: center;
+}
+
+
+.telemetry-card {
+
+    min-height: 62px;
+
+    padding: 9px;
+
+    border-radius: 9px;
+
+    background:
+        rgba(45, 70, 120, 0.10);
+
+    border:
+        1px solid rgba(100, 145, 220, 0.10);
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+}
+
+
+.telemetry-card span {
+
+    color: #718cb5;
+
+    font-size: 8px;
+
+    letter-spacing: 1.2px;
+
+    margin-bottom: 5px;
+}
+
+
+.telemetry-card strong {
+
+    color: #d7ecff;
+
+    font-size: 15px;
+}
+
+
+.battery-card strong {
+
+    color: #67edc1;
+}
+
+
+/* ============================================
+   ROBOT CONTROL
+============================================ */
+
+.control-panel {
+
+    display: flex;
+
+    flex-direction: column;
+}
+
+
+.section-label {
+
+    color: #7897bf;
+
+    font-size: 8px;
+
+    letter-spacing: 1.5px;
+
+    margin-bottom: 6px;
+}
+
+
+/* ============================================
+   ANGLE BUTTONS
+============================================ */
+
+.angle-buttons {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 6px;
+}
+
+
+.angle-button {
+
+    height: 30px;
+
+    border-radius: 7px;
+
+    border:
+        1px solid rgba(150, 125, 255, 0.18);
+
+    background:
+        rgba(80, 65, 150, 0.12);
+
+    color: #b9a8df;
+
+    font-size: 11px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition:
+        0.12s ease;
+}
+
+
+.angle-button:hover {
+
+    background:
+        rgba(110, 90, 190, 0.22);
+
+    color: #e0d5ff;
+}
+
+
+.angle-button.active {
+
+    background:
+        rgba(125, 90, 220, 0.32);
+
+    border:
+        1px solid #bca0ff;
+
+    color: #e5d9ff;
+
+    box-shadow:
+        0 0 12px rgba(150, 110, 255, 0.24);
+}
+
+
+/* ============================================
+   SELECTED ANGLE
+============================================ */
+
+.selected-angle {
+
+    margin-top: 5px;
+
+    margin-bottom: 7px;
+
+    text-align: center;
+
+    color: #718cb5;
+
+    font-size: 8px;
+}
+
+
+.selected-angle strong {
+
+    color: #c8b0ff;
+}
+
+
+/* ============================================
+   CONTROL PAD
+============================================ */
+
+.control-pad {
+
+    flex: 1;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 7px;
+}
+
+
+.middle-buttons {
+
+    display: flex;
+
+    gap: 5px;
+}
+
+
+/* ============================================
+   CONTROL BUTTON
+============================================ */
+
+.control-button {
+
+    width: 76px;
+
+    min-height: 48px;
+
+    border-radius: 9px;
+
+    border:
+        1px solid rgba(140, 125, 220, 0.16);
+
+    background:
+        rgba(55, 55, 105, 0.22);
+
+    color: #cbd8ed;
+
+    cursor: pointer;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    transition:
+        transform 0.07s ease,
+        background 0.07s ease,
+        box-shadow 0.07s ease;
+
+    user-select: none;
+}
+
+
+.control-button:hover {
+
+    background:
+        rgba(90, 85, 155, 0.30);
+}
+
+
+.control-button .arrow {
+
+    font-size: 18px;
+
+    line-height: 17px;
+
+    color: #c8b3ff;
+}
+
+
+.control-button span:not(.arrow) {
+
+    margin-top: 2px;
+
+    font-size: 8px;
+
+    letter-spacing: 0.7px;
+
+    color: #91a8c9;
+}
+
+
+.control-button small {
+
+    margin-top: 2px;
+
+    color: #667fa7;
+
+    font-size: 7px;
+}
+
+
+/* ============================================
+   FORWARD / BACKWARD
+============================================ */
+
+.forward,
+.backward {
+
+    width: 130px;
+
+    min-height: 42px;
+}
+
+
+/* ============================================
+   PRESSED
+============================================ */
+
+.control-button.pressed {
+
+    background:
+        rgba(255, 235, 140, 0.92);
+
+    border:
+        1px solid #fff2ad;
+
+    color: #332d14;
+
+    transform: scale(0.94);
+
+    box-shadow:
+        0 0 17px rgba(255, 220, 100, 0.48);
+}
+
+
+.control-button.pressed .arrow {
+
+    color: #4d4315;
+}
+
+
+.control-button.pressed span:not(.arrow) {
+
+    color: #4d4315;
+}
+
+
+.control-button.pressed small {
+
+    color: #665a1c;
+}
+
+
+/* ============================================
+   STOP
+============================================ */
+
+.stop {
+
+    background:
+        rgba(100, 55, 100, 0.25);
+}
+
+
+/* ============================================
+   CONTROL FOOTER
+============================================ */
+
+.control-footer {
+
+    margin-top: 6px;
+
+    text-align: center;
+
+    color: #596f96;
+
+    font-size: 6px;
+
+    letter-spacing: 1px;
+}
+
+
+/* ============================================
+   PID PANEL
+============================================ */
+
+.pid-panel {
+
+    display: flex;
+
+    flex-direction: column;
+}
+
+
+.profile-row {
+
+    display: flex;
+
+    align-items: end;
+
+    justify-content: space-between;
+
+    gap: 8px;
+
+    margin-bottom: 7px;
+}
+
+
+.profile-row select {
+
+    width: 150px;
+
+    height: 27px;
+
+    padding: 0 8px;
+
+    border-radius: 6px;
+
+    border:
+        1px solid rgba(150, 125, 255, 0.20);
+
+    background:
+        rgba(30, 35, 75, 0.65);
+
+    color: #cbd8ed;
+
+    font-size: 10px;
+
+    outline: none;
+}
+
+
+.active-profile {
+
+    color: #67edc1;
+
+    font-size: 9px;
+
+    white-space: nowrap;
+}
+
+
+/* ============================================
+   PID SECTION
+============================================ */
+
+.pid-section {
+
+    padding: 6px 7px;
+
+    margin-bottom: 5px;
+
+    border-radius: 7px;
+
+    background:
+        rgba(60, 65, 125, 0.08);
+
+    border:
+        1px solid rgba(130, 120, 210, 0.08);
+}
+
+
+.pid-title {
+
+    color: #9c8bd0;
+
+    font-size: 8px;
+
+    letter-spacing: 1.2px;
+
+    margin-bottom: 5px;
+}
+
+
+.pid-inputs {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 5px;
+}
+
+
+.pid-inputs label {
+
+    color: #687fa6;
+
+    font-size: 7px;
+
+    letter-spacing: 1px;
+}
+
+
+.pid-inputs input {
+
+    width: 100%;
+
+    height: 25px;
+
+    margin-top: 3px;
+
+    padding: 0 6px;
+
+    border-radius: 5px;
+
+    border:
+        1px solid rgba(130, 125, 200, 0.16);
+
+    background:
+        rgba(15, 20, 45, 0.60);
+
+    color: #dceaff;
+
+    font-size: 10px;
+
+    outline: none;
+}
+
+
+.pid-inputs input:focus {
+
+    border-color:
+        rgba(175, 145, 255, 0.55);
+
+    box-shadow:
+        0 0 7px rgba(150, 120, 255, 0.15);
+}
+
+
+/* ============================================
+   PID BUTTONS
+============================================ */
+
+.pid-buttons {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(5, 1fr);
+
+    gap: 5px;
+
+    margin-top: auto;
+}
+
+
+.pid-buttons button {
+
+    height: 27px;
+
+    border-radius: 6px;
+
+    border:
+        1px solid rgba(145, 125, 220, 0.16);
+
+    background:
+        rgba(70, 65, 135, 0.18);
+
+    color: #aebfe0;
+
+    font-size: 7px;
+
+    letter-spacing: 0.5px;
+
+    cursor: pointer;
+
+    transition: 0.12s ease;
+}
+
+
+.pid-buttons button:hover {
+
+    background:
+        rgba(110, 90, 185, 0.28);
+
+    color: #e1d8ff;
+}
+
+
+.pid-buttons .delete-button:hover {
+
+    background:
+        rgba(180, 55, 95, 0.28);
+
+    color: #ff9ab5;
+}
+
+
+/* ============================================
+   PID MESSAGE
+============================================ */
+
+.pid-message {
+
+    margin-top: 5px;
+
+    text-align: center;
+
+    color: #657da5;
+
+    font-size: 7px;
+}
+
+
+.pid-message.success {
+
+    color: #67edc1;
+}
+
+
+.pid-message.error {
+
+    color: #ff7899;
+}
+
+
+/* ============================================
+   FOOTER
+============================================ */
+
+footer {
+
+    flex-shrink: 0;
+
+    margin-top: 5px;
+
+    text-align: center;
+
+    color: #53698e;
+
+    font-size: 7px;
+
+    letter-spacing: 1px;
+}
+
+
+/* ============================================
+   RESPONSIVE
+============================================ */
+
+@media (max-width: 900px) {
+
+    html,
+    body {
+
+        height: auto;
+
+        overflow: auto;
+    }
+
+
+    .container {
+
+        height: auto;
+
+        min-height: 100vh;
+
+        padding: 15px;
+    }
+
+
+    .dashboard {
+
+        grid-template-columns: 1fr;
+
+        grid-template-rows: auto;
+    }
+
+
+    .panel {
+
+        min-height: 300px;
+    }
+}
+
+
+@media (max-width: 500px) {
+
+    .container {
+
+        width: 100%;
+
+        padding: 10px;
+    }
+
+
+    header h1 {
+
+        font-size: 19px;
+
+        letter-spacing: 2px;
+    }
+
+
+    .telemetry-grid {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+
+    .pid-buttons {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+
+    .profile-row {
+
+        align-items: stretch;
+
+        flex-direction: column;
+    }
+
+
+    .profile-row select {
+
+        width: 100%;
+    }
+}
