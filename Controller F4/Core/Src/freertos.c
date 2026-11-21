@@ -138,13 +138,13 @@ void MX_FREERTOS_Init(void)
 
     /* Create the thread(s) */
 
-    osThreadDef(CommandTask, StartCommandTask, osPriorityNormal, 0, 256);
+    osThreadDef(CommandTask, StartCommandTask, 2, 0, 256);
     CommandTaskHandle = osThreadCreate(osThread(CommandTask), NULL);
 
-    osThreadDef(BalanceTask, StartBalanceTask, osPriorityIdle, 0, 512);
+    osThreadDef(BalanceTask, StartBalanceTask, 3, 0, 512);
     BalanceTaskHandle = osThreadCreate(osThread(BalanceTask), NULL);
 
-    osThreadDef(SpeedTask, StartSpeedTask, osPriorityAboveNormal, 0, 256);
+    osThreadDef(SpeedTask, StartSpeedTask, 1, 0, 256);
     SpeedTaskHandle = osThreadCreate(osThread(SpeedTask), NULL);
 
     /* USER CODE BEGIN RTOS_THREADS */

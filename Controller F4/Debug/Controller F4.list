@@ -2893,7 +2893,7 @@ void MX_FREERTOS_Init(void)
 
     /* Create the thread(s) */
 
-    osThreadDef(CommandTask, StartCommandTask, osPriorityNormal, 0, 256);
+    osThreadDef(CommandTask, StartCommandTask, 2, 0, 256);
  8001da2:	4b24      	ldr	r3, [pc, #144]	@ (8001e34 <MX_FREERTOS_Init+0xf4>)
  8001da4:	f107 043c 	add.w	r4, r7, #60	@ 0x3c
  8001da8:	461d      	mov	r5, r3
@@ -2910,7 +2910,7 @@ void MX_FREERTOS_Init(void)
  8001dc4:	4a1c      	ldr	r2, [pc, #112]	@ (8001e38 <MX_FREERTOS_Init+0xf8>)
  8001dc6:	6013      	str	r3, [r2, #0]
 
-    osThreadDef(BalanceTask, StartBalanceTask, osPriorityIdle, 0, 512);
+    osThreadDef(BalanceTask, StartBalanceTask, 3, 0, 512);
  8001dc8:	4b1c      	ldr	r3, [pc, #112]	@ (8001e3c <MX_FREERTOS_Init+0xfc>)
  8001dca:	f107 0420 	add.w	r4, r7, #32
  8001dce:	461d      	mov	r5, r3
@@ -2927,7 +2927,7 @@ void MX_FREERTOS_Init(void)
  8001dea:	4a15      	ldr	r2, [pc, #84]	@ (8001e40 <MX_FREERTOS_Init+0x100>)
  8001dec:	6013      	str	r3, [r2, #0]
 
-    osThreadDef(SpeedTask, StartSpeedTask, osPriorityAboveNormal, 0, 256);
+    osThreadDef(SpeedTask, StartSpeedTask, 1, 0, 256);
  8001dee:	4b15      	ldr	r3, [pc, #84]	@ (8001e44 <MX_FREERTOS_Init+0x104>)
  8001df0:	1d3c      	adds	r4, r7, #4
  8001df2:	461d      	mov	r5, r3
