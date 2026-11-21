@@ -1,0 +1,2 @@
+../Core/Src/mpu9250.c:13:6:MPU9250_Init	32	static
+../Core/Src/mpu9250.c:34:6:MPU9250_CalibrateGyro	48	static
