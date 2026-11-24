@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#111111">
+    <title>Ape Self-Balancing Robot Controller</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-touch-callout: none !important;
+            -webkit-user-select: none !important;
+            user-select: none !important;
+            -webkit-user-drag: none !important;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+            background: #111;
+            font-family: Arial, sans-serif;
+            touch-action: none;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: url('/background.jpg') no-repeat center center;
+            background-size: cover;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Khung giao diện ngang */
+        .app-shell {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100dvh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding:
+                max(8px, env(safe-area-inset-top))
+                max(10px, env(safe-area-inset-right))
+                max(8px, env(safe-area-inset-bottom))
+                max(10px, env(safe-area-inset-left));
+            z-index: 1;
+        }
+
+        .control-panel {
+            width: 100%;
+            height: 100%;
+            max-width: 950px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-evenly;
+            gap: clamp(10px, 3vw, 30px);
+        }
+
+        /* Khu vực thông tin bên trái */
+        .info-panel {
+            flex: 0 0 30%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(8px, 2vh, 18px);
+            min-width: 0;
+        }
+
+        h3 {
+            color: white;
+            font-size: clamp(15px, 2.5vw, 23px);
+            text-align: center;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+        }
+
+        .ws-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: clamp(9px, 1.5vw, 12px);
+            font-weight: bold;
+            color: white;
+            background: rgba(235, 77, 75, 0.85);
+            text-align: center;
+            max-width: 100%;
+        }
+
+        .ws-badge.connected {
+            background: rgba(0, 184, 148, 0.85);
+        }
+
+        .telemetry-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(8px, 1.5vh, 14px);
+            pointer-events: none;
+        }
+
+        .telemetry-box {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.65);
+            color: #dcdde1;
+            padding: clamp(7px, 1.5vh, 12px);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            font-size: clamp(10px, 1.7vw, 14px);
+            text-align: center;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .telemetry-value {
+            display: block;
+            font-size: clamp(20px, 4vw, 32px);
+            font-weight: bold;
+            color: #00ffcc;
+            margin-top: 3px;
+        }
+
+        .angle-value {
+            color: #ffbe76;
+        }
+
+        /* Khu vực nút điều khiển bên phải */
+        .control-area {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 0;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, clamp(54px, 13vh, 82px));
+            grid-template-rows: repeat(3, clamp(54px, 13vh, 82px));
+            gap: clamp(6px, 1.5vh, 12px);
+            justify-content: center;
+            align-content: center;
+        }
+
+        .btn {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 14px;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            transition: transform 0.08s ease, background 0.08s ease;
+            touch-action: none;
+        }
+
+        .btn-diag {
+            background: rgba(255, 255, 255, 0.16);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn svg {
+            width: 42%;
+            height: 42%;
+            fill: white;
+            pointer-events: none;
+        }
+
+        .btn.pressing {
+            background: rgba(0, 255, 204, 0.65);
+            border-color: #00ffcc;
+            transform: scale(0.90);
+            box-shadow: 0 0 12px rgba(0, 255, 204, 0.6);
+        }
+
+        .btn-stop {
+            background: rgba(235, 77, 75, 0.75);
+        }
+
+        .btn-stop.pressing {
+            background: rgba(255, 77, 75, 1);
+            border-color: #ff4d4b;
+            box-shadow: 0 0 12px rgba(255, 77, 75, 0.8);
+        }
+
+        /* Điện thoại đang cầm dọc: xoay giao diện 90 độ */
+        @media screen and (orientation: portrait) {
+            .app-shell {
+                width: 100dvh;
+                height: 100vw;
+                top: 0;
+                left: 0;
+                right: auto;
+                bottom: auto;
+                transform-origin: top left;
+                transform: translateX(100vw) rotate(90deg);
+            }
+
+            .grid-container {
+                grid-template-columns: repeat(3, clamp(48px, 13vw, 76px));
+                grid-template-rows: repeat(3, clamp(48px, 13vw, 76px));
+                gap: clamp(5px, 1.5vw, 10px);
+            }
+
+            .info-panel {
+                flex-basis: 30%;
+            }
+        }
+
+        /* Màn hình rất thấp: thu nhỏ các nút để không bị tràn */
+        @media screen and (max-height: 380px) and (orientation: landscape) {
+            .grid-container {
+                grid-template-columns: repeat(3, min(18vh, 62px));
+                grid-template-rows: repeat(3, min(18vh, 62px));
+                gap: 5px;
+            }
+
+            .control-panel {
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-shell">
+        <div class="control-panel">
+
+            <div class="info-panel">
+                <h3>ĐIỀU KHIỂN XE</h3>
+
+                <div id="ws-status" class="ws-badge">
+                    ĐANG KẾT NỐI...
+                </div>
+
+                <div class="telemetry-container">
+                    <div class="telemetry-box">
+                        VẬN TỐC
+                        <span id="speed-val" class="telemetry-value">0.0</span>
+                    </div>
+
+                    <div class="telemetry-box">
+                        GÓC NGHIÊNG
+                        <span class="telemetry-value angle-value">
+                            <span id="angle-val">0.0</span>°
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-area">
+                <div class="grid-container">
+
+                    <div class="btn btn-diag move-btn" data-cmd="FL">
+                        <svg viewBox="0 0 24 24" style="transform: rotate(-45deg)">
+                            <path d="M12 4l-10 14h20z"/>
+                        </svg>
+                    </div>
+
+                    <div class="btn move-btn" data-cmd="F">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 4l-10 14h20z"/>
+                        </svg>
+                    </div>
+
+                    <div class="btn btn-diag move-btn" data-cmd="FR">
+                        <svg viewBox="0 0 24 24" style="transform: rotate(45deg)">
+                            <path d="M12 4l-10 14h20z"/>
+                        </svg>
+                    </div>
+
+                    <div class="btn move-btn" data-cmd="L">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M4 12l14-10v20z"/>
+                        </svg>
+                    </div>
+
+                    <div class="btn btn-stop" id="stop-btn">
+                        <svg viewBox="0 0 24 24">
+                            <rect x="5" y="5" width="14" height="14" rx="2"/>
+                        </svg>
+                    </div>
+
+                    <div class="btn move-btn" data-cmd="R">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M20 12l-14 10v-20z"/>
+                        </svg>
+                    </div>
+
+                    <div class="btn btn-diag move-btn" data-cmd="BL">
+                        <svg viewBox="0 0 24 24" style="transform: rotate(-135deg)">
+                            <path d="M12 4l-10 14h20z"/>
+                        </svg>
+                    </div>
+
+                    <div class="btn move-btn" data-cmd="B">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 20l10-14h-20z"/>
+                        </svg>
+                    </div>
+
+                    <div class="btn btn-diag move-btn" data-cmd="BR">
+                        <svg viewBox="0 0 24 24" style="transform: rotate(135deg)">
+                            <path d="M12 4l-10 14h20z"/>
+                        </svg>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let wsReady = false;
+        let reconnectTimer = null;
+        let desiredCmd = 'S';
+        let lastSentCmd = 'S';
+        let isTouchDevice = false;
+
+        const statusBadge = document.getElementById('ws-status');
+
+        window.addEventListener('contextmenu', e => e.preventDefault(), { passive: false });
+
+        document.addEventListener('selectstart', e => e.preventDefault(), { passive: false });
+
+        document.addEventListener('touchmove', e => {
+            if (e.cancelable) e.preventDefault();
+        }, { passive: false });
+
+        // Thử khóa hướng màn hình ngang nếu trình duyệt hỗ trợ.
+        // CSS vẫn đảm nhiệm xoay giao diện nếu API này không được hỗ trợ.
+        let orientationLockRequested = false;
+
+        function requestLandscape() {
+            if (orientationLockRequested) return;
+            orientationLockRequested = true;
+
+            if (screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock('landscape').catch(() => {});
+            }
+        }
+
+        document.addEventListener('touchstart', requestLandscape, {
+            once: true,
+            passive: true
+        });
+
+        document.addEventListener('click', requestLandscape, {
+            once: true
+        });
+
+        function setStatus(connected) {
+            wsReady = connected;
+
+            if (connected) {
+                statusBadge.innerText = 'WS SẴN SÀNG';
+                statusBadge.classList.add('connected');
+            } else {
+                statusBadge.innerText = 'MẤT KẾT NỐI - ĐANG THỬ LẠI...';
+                statusBadge.classList.remove('connected');
+            }
+        }
+
+        function connectWS() {
+            if (reconnectTimer) {
+                clearTimeout(reconnectTimer);
+                reconnectTimer = null;
+            }
+
+            const host = window.location.hostname || '192.168.4.1';
+            ws = new WebSocket('ws://' + host + ':81/');
+
+            ws.onopen = () => {
+                setStatus(true);
+                lastSentCmd = '';
+                sendCmd(true);
+            };
+
+            ws.onmessage = (e) => {
+                if (typeof e.data === 'string' && e.data.startsWith('T:')) {
+                    const parts = e.data.substring(2).split(',');
+
+                    if (parts.length === 2) {
+                        document.getElementById('speed-val').innerText = parts[0];
+                        document.getElementById('angle-val').innerText = parts[1];
+                    }
+                }
+            };
+
+            ws.onclose = () => {
+                setStatus(false);
+                reconnectTimer = setTimeout(connectWS, 600);
+            };
+
+            ws.onerror = () => {
+                try {
+                    ws.close();
+                } catch (err) {}
+            };
+        }
+
+        function computeDesiredCmd() {
+            let d = '';
+            let t = '';
+
+            document.querySelectorAll('.move-btn.pressing').forEach(btn => {
+                const c = btn.getAttribute('data-cmd');
+
+                if (c.indexOf('F') !== -1) d = 'F';
+                else if (c.indexOf('B') !== -1) d = 'B';
+
+                if (c.indexOf('L') !== -1) t = 'L';
+                else if (c.indexOf('R') !== -1) t = 'R';
+            });
+
+            const combined = d + t;
+            return combined === '' ? 'S' : combined;
+        }
+
+        function sendCmd(force = false) {
+            if (!wsReady || !ws || ws.readyState !== WebSocket.OPEN) return;
+            if (!force && desiredCmd === lastSentCmd) return;
+
+            ws.send(desiredCmd);
+            lastSentCmd = desiredCmd;
+        }
+
+        function updateMotion() {
+            desiredCmd = computeDesiredCmd();
+            sendCmd(false);
+        }
+
+        function stopAll() {
+            document.querySelectorAll('.move-btn').forEach(b => {
+                b.classList.remove('pressing');
+            });
+
+            desiredCmd = 'S';
+            sendCmd(true);
+        }
+
+        // Keepalive mỗi 300ms khi đang giữ nút
+        setInterval(() => {
+            if (wsReady && ws && ws.readyState === WebSocket.OPEN && desiredCmd !== 'S') {
+                ws.send('K');
+            }
+        }, 300);
+
+        document.querySelectorAll('.move-btn').forEach(btn => {
+            btn.addEventListener('touchstart', (e) => {
+                isTouchDevice = true;
+
+                if (e.cancelable) e.preventDefault();
+                e.stopPropagation();
+
+                btn.classList.add('pressing');
+                updateMotion();
+            }, { passive: false });
+
+            const handleTouchEnd = (e) => {
+                if (e.cancelable) e.preventDefault();
+                e.stopPropagation();
+
+                if (e.targetTouches && e.targetTouches.length > 0) return;
+                if (!btn.classList.contains('pressing')) return;
+
+                btn.classList.remove('pressing');
+                updateMotion();
+            };
+
+            btn.addEventListener('touchend', handleTouchEnd, { passive: false });
+            btn.addEventListener('touchcancel', handleTouchEnd, { passive: false });
+
+            btn.addEventListener('mousedown', (e) => {
+                if (isTouchDevice) return;
+
+                e.preventDefault();
+                btn.classList.add('pressing');
+                updateMotion();
+            });
+
+            const handleMouseRelease = () => {
+                if (isTouchDevice) return;
+                if (!btn.classList.contains('pressing')) return;
+
+                btn.classList.remove('pressing');
+                updateMotion();
+            };
+
+            btn.addEventListener('mouseup', handleMouseRelease);
+            btn.addEventListener('mouseleave', handleMouseRelease);
+        });
+
+        const stopBtn = document.getElementById('stop-btn');
+
+        const emergencyStop = (e) => {
+            if (e.cancelable) e.preventDefault();
+
+            stopBtn.classList.add('pressing');
+            stopAll();
+        };
+
+        stopBtn.addEventListener('touchstart', emergencyStop, { passive: false });
+
+        stopBtn.addEventListener('touchend', (e) => {
+            if (e.cancelable) e.preventDefault();
+            stopBtn.classList.remove('pressing');
+        }, { passive: false });
+
+        stopBtn.addEventListener('mousedown', (e) => {
+            if (isTouchDevice) return;
+            emergencyStop(e);
+        });
+
+        stopBtn.addEventListener('mouseup', () => {
+            stopBtn.classList.remove('pressing');
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && desiredCmd !== 'S') {
+                stopAll();
+            }
+        });
+
+        connectWS();
+    </script>
+</body>
+</html>
