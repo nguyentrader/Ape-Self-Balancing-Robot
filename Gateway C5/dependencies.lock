@@ -1,0 +1,32 @@
+dependencies:
+  espressif/led_strip:
+    component_hash: 027f68f2b57b0dca1d68dff6cc1139d9093825aa808c2bc3ca42bb2ce530fce9
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=5.2'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 3.1.1
+  idf:
+    source:
+      type: idf
+    version: 6.1.1
+  joltwallet/littlefs:
+    component_hash: e1a0f4a6adf821759cb34703a91107bbdce5d7ff6f4728f40ab012bb87842974
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=5.0'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.23.1
+direct_dependencies:
+- espressif/led_strip
+- idf
+- joltwallet/littlefs
+manifest_hash: 538c2cc2307966677e33613495cd98fd4f796691224754dfde25ae5c79ea6d84
+target: esp32c5
+version: 3.0.0
