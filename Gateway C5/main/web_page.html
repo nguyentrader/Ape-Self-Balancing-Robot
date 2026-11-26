@@ -38,7 +38,6 @@
             z-index: 0;
         }
 
-        /* Khung giao diện ngang */
         .app-shell {
             position: fixed;
             inset: 0;
@@ -66,7 +65,6 @@
             gap: clamp(10px, 3vw, 30px);
         }
 
-        /* Khu vực thông tin bên trái */
         .info-panel {
             flex: 0 0 30%;
             display: flex;
@@ -134,7 +132,6 @@
             color: #ffbe76;
         }
 
-        /* Khu vực nút điều khiển bên phải */
         .control-area {
             flex: 1;
             height: 100%;
@@ -199,7 +196,129 @@
             box-shadow: 0 0 12px rgba(255, 77, 75, 0.8);
         }
 
-        /* Điện thoại đang cầm dọc: xoay giao diện 90 độ */
+        /* Wi-Fi settings button */
+        .settings-button {
+            width: 100%;
+            max-width: 180px;
+            padding: 9px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.65);
+            color: white;
+            font-size: clamp(10px, 1.5vw, 13px);
+            font-weight: bold;
+            cursor: pointer;
+            touch-action: manipulation;
+            pointer-events: auto;
+        }
+
+        .settings-button:active {
+            background: rgba(0, 184, 148, 0.85);
+        }
+
+        /* Wi-Fi settings modal */
+        .settings-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.78);
+            touch-action: manipulation;
+        }
+
+        .settings-overlay.show {
+            display: flex;
+        }
+
+        .settings-card {
+            width: 100%;
+            max-width: 360px;
+            padding: 22px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 16px;
+            background: #20252b;
+            color: white;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+            touch-action: manipulation;
+        }
+
+        .settings-card h3 {
+            margin-bottom: 20px;
+            font-size: 19px;
+        }
+
+        .settings-label {
+            display: block;
+            margin-bottom: 9px;
+            color: #dcdde1;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        .channel-select {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #555;
+            border-radius: 8px;
+            background: #111820;
+            color: white;
+            font-size: 15px;
+            outline: none;
+            touch-action: manipulation;
+            -webkit-user-select: auto !important;
+            user-select: auto !important;
+        }
+
+        .channel-current {
+            margin-top: 13px;
+            color: #00ffcc;
+            font-size: 12px;
+            text-align: left;
+        }
+
+        .channel-message {
+            min-height: 34px;
+            margin-top: 12px;
+            color: #ffbe76;
+            font-size: 12px;
+            line-height: 1.5;
+            text-align: left;
+        }
+
+        .settings-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .settings-action {
+            flex: 1;
+            padding: 11px 8px;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        .settings-close {
+            background: #555;
+        }
+
+        .settings-save {
+            background: #009b79;
+        }
+
+        .settings-action:disabled {
+            opacity: 0.5;
+        }
+
         @media screen and (orientation: portrait) {
             .app-shell {
                 width: 100dvh;
@@ -223,7 +342,6 @@
             }
         }
 
-        /* Màn hình rất thấp: thu nhỏ các nút để không bị tràn */
         @media screen and (max-height: 380px) and (orientation: landscape) {
             .grid-container {
                 grid-template-columns: repeat(3, min(18vh, 62px));
@@ -262,6 +380,10 @@
                         </span>
                     </div>
                 </div>
+
+                <button id="settings-open" class="settings-button">
+                    ⚙ CÀI ĐẶT WI-FI
+                </button>
             </div>
 
             <div class="control-area">
@@ -327,6 +449,49 @@
         </div>
     </div>
 
+    <!-- Wi-Fi settings dialog -->
+    <div id="settings-overlay" class="settings-overlay" aria-hidden="true">
+        <div class="settings-card" role="dialog" aria-modal="true"
+             aria-labelledby="settings-title">
+
+            <h3 id="settings-title">CÀI ĐẶT WI-FI</h3>
+
+            <label class="settings-label" for="wifi-channel">
+                Chọn kênh Wi-Fi 5 GHz
+            </label>
+
+            <select id="wifi-channel" class="channel-select">
+                <option value="36">Kênh 36 (5180 MHz)</option>
+                <option value="40">Kênh 40 (5200 MHz)</option>
+                <option value="44">Kênh 44 (5220 MHz)</option>
+                <option value="48">Kênh 48 (5240 MHz)</option>
+                <option value="149">Kênh 149 (5745 MHz)</option>
+                <option value="153">Kênh 153 (5765 MHz)</option>
+                <option value="157">Kênh 157 (5785 MHz)</option>
+                <option value="161">Kênh 161 (5805 MHz)</option>
+                <option value="165">Kênh 165 (5825 MHz)</option>
+            </select>
+
+            <div id="channel-current" class="channel-current">
+                Đang tải cấu hình...
+            </div>
+
+            <div id="channel-message" class="channel-message"></div>
+
+            <div class="settings-actions">
+                <button id="settings-close"
+                        class="settings-action settings-close">
+                    Đóng
+                </button>
+
+                <button id="channel-save"
+                        class="settings-action settings-save">
+                    Lưu kênh
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let ws = null;
         let wsReady = false;
@@ -337,16 +502,23 @@
 
         const statusBadge = document.getElementById('ws-status');
 
-        window.addEventListener('contextmenu', e => e.preventDefault(), { passive: false });
+        window.addEventListener('contextmenu', e => e.preventDefault(), {
+            passive: false
+        });
 
-        document.addEventListener('selectstart', e => e.preventDefault(), { passive: false });
+        document.addEventListener('selectstart', e => {
+            if (!e.target.closest('.settings-card')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
 
         document.addEventListener('touchmove', e => {
+            if (e.target.closest('.settings-card')) return;
+
             if (e.cancelable) e.preventDefault();
         }, { passive: false });
 
-        // Thử khóa hướng màn hình ngang nếu trình duyệt hỗ trợ.
-        // CSS vẫn đảm nhiệm xoay giao diện nếu API này không được hỗ trợ.
+        // Request landscape orientation when supported.
         let orientationLockRequested = false;
 
         function requestLandscape() {
@@ -457,9 +629,11 @@
             sendCmd(true);
         }
 
-        // Keepalive mỗi 300ms khi đang giữ nút
+        // Keepalive every 300 ms while moving.
         setInterval(() => {
-            if (wsReady && ws && ws.readyState === WebSocket.OPEN && desiredCmd !== 'S') {
+            if (wsReady && ws &&
+                ws.readyState === WebSocket.OPEN &&
+                desiredCmd !== 'S') {
                 ws.send('K');
             }
         }, 300);
@@ -486,8 +660,13 @@
                 updateMotion();
             };
 
-            btn.addEventListener('touchend', handleTouchEnd, { passive: false });
-            btn.addEventListener('touchcancel', handleTouchEnd, { passive: false });
+            btn.addEventListener('touchend', handleTouchEnd, {
+                passive: false
+            });
+
+            btn.addEventListener('touchcancel', handleTouchEnd, {
+                passive: false
+            });
 
             btn.addEventListener('mousedown', (e) => {
                 if (isTouchDevice) return;
@@ -518,7 +697,9 @@
             stopAll();
         };
 
-        stopBtn.addEventListener('touchstart', emergencyStop, { passive: false });
+        stopBtn.addEventListener('touchstart', emergencyStop, {
+            passive: false
+        });
 
         stopBtn.addEventListener('touchend', (e) => {
             if (e.cancelable) e.preventDefault();
@@ -537,6 +718,139 @@
         document.addEventListener('visibilitychange', () => {
             if (document.hidden && desiredCmd !== 'S') {
                 stopAll();
+            }
+        });
+
+        // Wi-Fi channel settings.
+        const settingsOverlay = document.getElementById('settings-overlay');
+        const settingsOpen = document.getElementById('settings-open');
+        const settingsClose = document.getElementById('settings-close');
+        const channelSelect = document.getElementById('wifi-channel');
+        const channelCurrent = document.getElementById('channel-current');
+        const channelMessage = document.getElementById('channel-message');
+        const channelSave = document.getElementById('channel-save');
+
+        const validChannels = [
+            36, 40, 44, 48, 149, 153, 157, 161, 165
+        ];
+
+        function openSettings() {
+            settingsOverlay.classList.add('show');
+            settingsOverlay.setAttribute('aria-hidden', 'false');
+
+            channelMessage.innerText = '';
+            loadWifiChannel();
+        }
+
+        function closeSettings() {
+            settingsOverlay.classList.remove('show');
+            settingsOverlay.setAttribute('aria-hidden', 'true');
+        }
+
+        async function loadWifiChannel() {
+            channelCurrent.innerText = 'Đang tải cấu hình...';
+            channelMessage.innerText = '';
+
+            try {
+                const response = await fetch('/api/wifi/channel', {
+                    method: 'GET',
+                    cache: 'no-store'
+                });
+
+                if (!response.ok) {
+                    throw new Error('HTTP ' + response.status);
+                }
+
+                const data = await response.json();
+                const channel = Number(data.channel);
+
+                if (!validChannels.includes(channel)) {
+                    throw new Error('Kênh trả về không hợp lệ');
+                }
+
+                channelSelect.value = String(channel);
+                channelCurrent.innerText =
+                    'Kênh đang lưu: ' + channel;
+
+            } catch (err) {
+                channelCurrent.innerText =
+                    'Không đọc được cấu hình Wi-Fi.';
+
+                channelMessage.innerText =
+                    'Lỗi: ' + err.message;
+            }
+        }
+
+        async function saveWifiChannel() {
+            const channel = Number(channelSelect.value);
+
+            if (!validChannels.includes(channel)) {
+                channelMessage.innerText = 'Kênh không hợp lệ.';
+                return;
+            }
+
+            channelSave.disabled = true;
+            channelMessage.innerText = 'Đang lưu cấu hình...';
+
+            try {
+                const response = await fetch('/api/wifi/channel', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        channel: channel
+                    })
+                });
+
+                if (!response.ok) {
+                    let errorMessage = 'HTTP ' + response.status;
+
+                    try {
+                        const errorData = await response.json();
+                        if (errorData.error) {
+                            errorMessage = errorData.error;
+                        }
+                    } catch (err) {}
+
+                    throw new Error(errorMessage);
+                }
+
+                const data = await response.json();
+
+                channelCurrent.innerText =
+                    'Kênh đã lưu: ' + channel;
+
+                channelMessage.innerText =
+                    'Đã lưu thành công. Hãy khởi động lại Gateway để áp dụng kênh mới.';
+
+            } catch (err) {
+                channelMessage.innerText =
+                    'Không thể lưu kênh: ' + err.message;
+
+            } finally {
+                channelSave.disabled = false;
+            }
+        }
+
+        settingsOpen.addEventListener('click', openSettings);
+        settingsOpen.addEventListener('touchstart', (e) => {
+            e.stopPropagation();
+        }, { passive: true });
+
+        settingsClose.addEventListener('click', closeSettings);
+        channelSave.addEventListener('click', saveWifiChannel);
+
+        settingsOverlay.addEventListener('click', (e) => {
+            if (e.target === settingsOverlay) {
+                closeSettings();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' &&
+                settingsOverlay.classList.contains('show')) {
+                closeSettings();
             }
         });
 

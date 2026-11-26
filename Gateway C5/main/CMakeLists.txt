@@ -5,16 +5,12 @@ idf_component_register(
         "uart_stm32.c"
         "led_control.c"
         "wifi_ap.c"
+        "wifi_channel.c"
         "websocket.c"
         "web_server.c"
-
-    INCLUDE_DIRS
-        "."
-
-    EMBED_TXTFILES
-        "web_page.html"
-
-     REQUIRES
+    INCLUDE_DIRS "."
+    EMBED_TXTFILES "web_page.html"
+    REQUIRES
         esp_wifi
         esp_event
         esp_netif
@@ -26,9 +22,4 @@ idf_component_register(
         led_strip
         littlefs
 )
-
-littlefs_create_partition_image(
-    littlefs
-    ../littlefs_data
-    FLASH_IN_PROJECT
-)
+littlefs_create_partition_image(littlefs ../littlefs_data FLASH_IN_PROJECT)

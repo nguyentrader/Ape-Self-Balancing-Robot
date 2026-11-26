@@ -10,6 +10,8 @@
 #include "esp_http_server.h"
 #include "esp_littlefs.h"
 
+#include "wifi_channel.h"
+
 // HTTP server configuration.
 #define HTTP_SERVER_PORT       80
 #define HTTP_SERVER_CTRL_PORT  32768
@@ -19,6 +21,9 @@
 #define LITTLEFS_PARTITION     "littlefs"
 
 #define FILE_BUFFER_SIZE       1024
+
+// Wi-Fi API configuration.
+#define WIFI_CHANNEL_BODY_SIZE 64
 
 static const char *TAG = "WEB_SERVER";
 
@@ -56,7 +61,6 @@ static esp_err_t littlefs_init(void)
 
         littlefs_ready = false;
 
-        // Continue without the background image.
         return ESP_OK;
     }
 
@@ -105,7 +109,6 @@ static esp_err_t root_handler(httpd_req_t *req)
         "no-cache"
     );
 
-    // Calculate the exact embedded file size.
     size_t html_size =
         (size_t)(web_page_html_end - web_page_html_start);
 
@@ -166,7 +169,6 @@ static esp_err_t background_handler(httpd_req_t *req)
 
     size_t bytes_read;
 
-    // Send the image in small chunks.
     while ((bytes_read = fread(
                 buffer,
                 1,
@@ -187,7 +189,6 @@ static esp_err_t background_handler(httpd_req_t *req)
         }
     }
 
-    // Check for file reading errors.
     if (ferror(file)) {
         ESP_LOGE(TAG, "Error reading background image");
 
@@ -197,8 +198,159 @@ static esp_err_t background_handler(httpd_req_t *req)
 
     fclose(file);
 
-    // Finish the HTTP chunked response.
     return httpd_resp_send_chunk(req, NULL, 0);
+}
+
+// Return the currently saved Wi-Fi channel.
+static esp_err_t wifi_channel_get_handler(httpd_req_t *req)
+{
+    uint8_t channel = wifi_channel_config_get();
+
+    char response[32];
+
+    snprintf(
+        response,
+        sizeof(response),
+        "{\"channel\":%u}",
+        (unsigned int)channel
+    );
+
+    httpd_resp_set_type(req, "application/json");
+
+    httpd_resp_set_hdr(
+        req,
+        "Cache-Control",
+        "no-store"
+    );
+
+    ESP_LOGI(
+        TAG,
+        "Wi-Fi channel requested: %u",
+        (unsigned int)channel
+    );
+
+    return httpd_resp_sendstr(req, response);
+}
+
+// Receive and save a new Wi-Fi channel.
+static esp_err_t wifi_channel_post_handler(httpd_req_t *req)
+{
+    if (req->content_len == 0 ||
+        req->content_len >= WIFI_CHANNEL_BODY_SIZE) {
+
+        httpd_resp_send_err(
+            req,
+            HTTPD_400_BAD_REQUEST,
+            "Invalid request body size"
+        );
+
+        return ESP_OK;
+    }
+
+    char body[WIFI_CHANNEL_BODY_SIZE] = {0};
+
+    int received = httpd_req_recv(
+        req,
+        body,
+        req->content_len
+    );
+
+    if (received <= 0 ||
+        received != req->content_len) {
+
+        ESP_LOGW(TAG, "Cannot receive Wi-Fi channel request");
+
+        httpd_resp_send_err(
+            req,
+            HTTPD_400_BAD_REQUEST,
+            "Cannot receive request body"
+        );
+
+        return ESP_OK;
+    }
+
+    body[received] = '\0';
+
+    unsigned int channel = 0;
+    char extra;
+
+    // Accept JSON in the form {"channel":36}.
+    if (sscanf(
+            body,
+            " { \"channel\" : %u } %c",
+            &channel,
+            &extra
+        ) != 1) {
+
+        httpd_resp_send_err(
+            req,
+            HTTPD_400_BAD_REQUEST,
+            "Invalid JSON format"
+        );
+
+        return ESP_OK;
+    }
+
+    if (channel > UINT8_MAX ||
+        !wifi_channel_is_valid((uint8_t)channel)) {
+
+        ESP_LOGW(
+            TAG,
+            "Rejected Wi-Fi channel: %u",
+            channel
+        );
+
+        httpd_resp_send_err(
+            req,
+            HTTPD_400_BAD_REQUEST,
+            "Unsupported Wi-Fi channel"
+        );
+
+        return ESP_OK;
+    }
+
+    esp_err_t ret = wifi_channel_config_set((uint8_t)channel);
+
+    if (ret != ESP_OK) {
+        ESP_LOGE(
+            TAG,
+            "Cannot save Wi-Fi channel: %s",
+            esp_err_to_name(ret)
+        );
+
+        httpd_resp_send_err(
+            req,
+            HTTPD_500_INTERNAL_SERVER_ERROR,
+            "Cannot save Wi-Fi channel"
+        );
+
+        return ESP_OK;
+    }
+
+    ESP_LOGI(
+        TAG,
+        "Wi-Fi channel saved: %u",
+        channel
+    );
+
+    char response[96];
+
+    snprintf(
+        response,
+        sizeof(response),
+        "{\"success\":true,\"channel\":%u,\"reboot_required\":true}",
+        channel
+    );
+
+    httpd_resp_set_type(req, "application/json");
+
+    httpd_resp_set_hdr(
+        req,
+        "Cache-Control",
+        "no-store"
+    );
+
+    return httpd_resp_sendstr(req, response);
 }
 
 // Initialize the HTTP server.
@@ -279,11 +431,57 @@ esp_err_t web_server_init(void)
         return ret;
     }
 
+    // Register the Wi-Fi channel GET endpoint.
+    const httpd_uri_t wifi_channel_get_uri = {
+        .uri = "/api/wifi/channel",
+        .method = HTTP_GET,
+        .handler = wifi_channel_get_handler,
+        .user_ctx = NULL
+    };
+
+    ret = httpd_register_uri_handler(
+        http_server,
+        &wifi_channel_get_uri
+    );
+
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Cannot register Wi-Fi channel GET URI");
+
+        httpd_stop(http_server);
+        http_server = NULL;
+
+        return ret;
+    }
+
+    // Register the Wi-Fi channel POST endpoint.
+    const httpd_uri_t wifi_channel_post_uri = {
+        .uri = "/api/wifi/channel",
+        .method = HTTP_POST,
+        .handler = wifi_channel_post_handler,
+        .user_ctx = NULL
+    };
+
+    ret = httpd_register_uri_handler(
+        http_server,
+        &wifi_channel_post_uri
+    );
+
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Cannot register Wi-Fi channel POST URI");
+
+        httpd_stop(http_server);
+        http_server = NULL;
+
+        return ret;
+    }
+
     ESP_LOGI(
         TAG,
         "HTTP server started on port %d",
         HTTP_SERVER_PORT
     );
+
+    ESP_LOGI(TAG, "Wi-Fi channel API registered");
 
     return ESP_OK;
 }

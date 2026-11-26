@@ -1,4 +1,5 @@
 #include "wifi_ap.h"
+#include "wifi_channel.h"
 
 #include <stdint.h>
 #include <string.h>
@@ -13,13 +14,13 @@
 #define WIFI_AP_MAX_CLIENTS 2
 #define WIFI_AP_TX_POWER    78
 
-#define WIFI_CHANNEL_5G     36
 #define WIFI_CHANNEL_2G     1
 
 static const char *TAG = "WIFI_AP";
 
 static esp_netif_t *ap_netif = NULL;
 
+// Apply the AP configuration with the selected channel.
 static esp_err_t set_ap_channel(uint8_t channel)
 {
     wifi_config_t ap_config = {
@@ -43,10 +44,26 @@ static esp_err_t set_ap_channel(uint8_t channel)
     return esp_wifi_set_config(WIFI_IF_AP, &ap_config);
 }
 
+// Initialize the Wi-Fi SoftAP.
 esp_err_t wifi_ap_init(void)
 {
     esp_err_t ret;
+    uint8_t wifi_channel;
 
+    // Load the saved channel from NVS.
+    ret = wifi_channel_config_init();
+
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Channel config initialization failed: %s",
+                 esp_err_to_name(ret));
+        return ret;
+    }
+
+    wifi_channel = wifi_channel_config_get();
+
+    ESP_LOGI(TAG, "Configured 5 GHz channel: %d", wifi_channel);
+
+    // Create the default AP network interface.
     ap_netif = esp_netif_create_default_wifi_ap();
 
     if (ap_netif == NULL) {
@@ -54,24 +71,28 @@ esp_err_t wifi_ap_init(void)
         return ESP_FAIL;
     }
 
+    // Initialize the Wi-Fi driver.
     wifi_init_config_t init_config = WIFI_INIT_CONFIG_DEFAULT();
 
     ret = esp_wifi_init(&init_config);
+
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "WiFi initialization failed: %s",
                  esp_err_to_name(ret));
         return ret;
     }
 
+    // Select AP mode.
     ret = esp_wifi_set_mode(WIFI_MODE_AP);
+
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Cannot set AP mode: %s",
                  esp_err_to_name(ret));
         return ret;
     }
 
-    // Configure 5 GHz channel before starting WiFi.
-    ret = set_ap_channel(WIFI_CHANNEL_5G);
+    // Configure the selected 5 GHz channel before starting Wi-Fi.
+    ret = set_ap_channel(wifi_channel);
 
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Cannot configure 5 GHz AP: %s",
@@ -79,7 +100,9 @@ esp_err_t wifi_ap_init(void)
         return ret;
     }
 
+    // Start the Wi-Fi driver.
     ret = esp_wifi_start();
+
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Cannot start WiFi: %s",
                  esp_err_to_name(ret));
@@ -88,24 +111,24 @@ esp_err_t wifi_ap_init(void)
 
     ESP_LOGI(TAG, "WiFi driver started");
 
-    // Select 5 GHz after WiFi has started.
+    // Select 5 GHz band.
     ret = esp_wifi_set_band_mode(WIFI_BAND_MODE_5G_ONLY);
 
     if (ret == ESP_OK) {
         ret = esp_wifi_set_channel(
-            WIFI_CHANNEL_5G,
+            wifi_channel,
             WIFI_SECOND_CHAN_NONE
         );
     }
 
     if (ret == ESP_OK) {
         ESP_LOGI(TAG, "5 GHz SoftAP selected, channel %d",
-                 WIFI_CHANNEL_5G);
+                 wifi_channel);
     } else {
         ESP_LOGW(TAG, "5 GHz unavailable: %s",
                  esp_err_to_name(ret));
 
-        // Switch to 2.4 GHz.
+        // Fall back to 2.4 GHz.
         ret = esp_wifi_set_band_mode(WIFI_BAND_MODE_2G_ONLY);
 
         if (ret != ESP_OK) {
@@ -140,7 +163,9 @@ esp_err_t wifi_ap_init(void)
                  WIFI_CHANNEL_2G);
     }
 
+    // Set Wi-Fi transmit power.
     ret = esp_wifi_set_max_tx_power(WIFI_AP_TX_POWER);
+
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Cannot set TX power: %s",
                  esp_err_to_name(ret));
@@ -148,7 +173,9 @@ esp_err_t wifi_ap_init(void)
         return ret;
     }
 
+    // Disable Wi-Fi power saving.
     ret = esp_wifi_set_ps(WIFI_PS_NONE);
+
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Cannot disable WiFi power save: %s",
                  esp_err_to_name(ret));
@@ -156,6 +183,7 @@ esp_err_t wifi_ap_init(void)
         return ret;
     }
 
+    // Print the SoftAP IP address.
     esp_netif_ip_info_t ip_info;
 
     ret = esp_netif_get_ip_info(ap_netif, &ip_info);

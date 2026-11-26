@@ -3,12 +3,11 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-#include "esp_err.h"
 #include "esp_log.h"
-#include "esp_event.h"
-#include "esp_netif.h"
-
+#include "esp_err.h"
 #include "nvs_flash.h"
+#include "esp_netif.h"
+#include "esp_event.h"
 
 #include "vehicle_state.h"
 #include "uart_stm32.h"
@@ -19,7 +18,7 @@
 
 static const char *TAG = "MAIN";
 
-// Initialize NVS with recovery support.
+// Initialize the NVS storage.
 static void nvs_init(void)
 {
     esp_err_t ret = nvs_flash_init();
@@ -27,68 +26,48 @@ static void nvs_init(void)
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES ||
         ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
 
-        ESP_LOGW(TAG, "NVS partition requires recovery");
-
         ESP_ERROR_CHECK(nvs_flash_erase());
-
         ret = nvs_flash_init();
     }
 
     ESP_ERROR_CHECK(ret);
-
-    ESP_LOGI(TAG, "NVS initialized");
 }
 
-// Initialize the network interface and event loop.
+// Initialize the ESP network interface.
 static void network_init(void)
 {
     ESP_ERROR_CHECK(esp_netif_init());
-
     ESP_ERROR_CHECK(esp_event_loop_create_default());
-
-    ESP_LOGI(TAG, "Network interface initialized");
 }
 
 // Main application entry point.
 void app_main(void)
 {
-    ESP_LOGI(TAG, "Starting Gateway application");
+    ESP_LOGI(TAG, "Starting Gateway");
 
-    // Initialize persistent storage.
+    // Initialize system storage.
     nvs_init();
 
-    // Initialize the network framework.
+    // Initialize network services.
     network_init();
 
-    // Initialize shared vehicle state.
+    // Initialize vehicle state.
     ESP_ERROR_CHECK(vehicle_state_init());
 
-    ESP_LOGI(TAG, "Vehicle state initialized");
-
-    // Initialize UART communication with STM32.
+    // Initialize STM32 UART communication.
     ESP_ERROR_CHECK(uart_stm32_init());
 
-    ESP_LOGI(TAG, "STM32 UART initialized");
-
-    // Initialize the WS2812B LED strip.
+    // Initialize WS2812B LEDs.
     ESP_ERROR_CHECK(led_control_init());
 
-    ESP_LOGI(TAG, "LED controller initialized");
-
-    // Start the Wi-Fi SoftAP.
+    // Initialize Wi-Fi SoftAP.
     ESP_ERROR_CHECK(wifi_ap_init());
 
-    ESP_LOGI(TAG, "Wi-Fi SoftAP initialized");
-
-    // Start the HTTP web server.
+    // Start the HTTP server.
     ESP_ERROR_CHECK(web_server_init());
-
-    ESP_LOGI(TAG, "HTTP server initialized");
 
     // Start the WebSocket server.
     ESP_ERROR_CHECK(websocket_server_init());
-
-    ESP_LOGI(TAG, "WebSocket server initialized");
 
     ESP_LOGI(TAG, "Gateway initialization completed");
 }
